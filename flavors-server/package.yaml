@@ -1,0 +1,65 @@
+name: flavors-server
+version: '0.1.0'
+license: MIT
+author: "Andy Zheng"
+maintainer: "Andy Zheng"
+
+extra-source-files:
+- package.yaml
+- assets/schema.gql
+
+dependencies:
+  - morpheus-graphql
+  - morpheus-graphql-core
+  - morpheus-graphql-subscriptions
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: lib
+  dependencies:
+  - base
+  - morpheus-graphql
+  - morpheus-graphql-core
+  - morpheus-graphql-subscriptions
+  - scotty
+  ghc-options:
+  - -rtsopts
+  - -threaded
+  - -with-rtsopts=-N
+
+executables:
+  flavors-server:
+    source-dirs: src
+    main: Main.hs
+    dependencies:
+    - base
+    - flavors-server
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+
+tests:
+  flavors-server-test-suite:
+    source-dirs: test
+    main: Main.hs
+    dependencies:
+    - base
+    - flavors-server
+    - hspec
+    - tasty
+    - tasty-hspec
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
