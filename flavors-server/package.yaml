@@ -12,6 +12,10 @@ dependencies:
   - morpheus-graphql
   - morpheus-graphql-core
   - morpheus-graphql-subscriptions
+  - aeson
+  - scotty
+  - bytestring
+  - text
 
 ghc-options:
 - -Wall
@@ -24,26 +28,12 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
-library:
-  source-dirs: lib
-  dependencies:
-  - base
-  - morpheus-graphql
-  - morpheus-graphql-core
-  - morpheus-graphql-subscriptions
-  - scotty
-  ghc-options:
-  - -rtsopts
-  - -threaded
-  - -with-rtsopts=-N
-
 executables:
   flavors-server:
     source-dirs: src
     main: Main.hs
     dependencies:
     - base
-    - flavors-server
     ghc-options:
     - -rtsopts
     - -threaded

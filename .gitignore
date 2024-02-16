@@ -1,3 +1,4 @@
 .stack-work
 dist-newstyle
 flavors-server.cabal
+__pycache__

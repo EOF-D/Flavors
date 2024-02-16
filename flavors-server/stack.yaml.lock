@@ -32,6 +32,27 @@ packages:
       size: 472
   original:
     hackage: ansi-wl-pprint-0.6.9@sha256:fb737bc96e2aef34ad595d54ced7a73f648c521ebcb00fe0679aff45ccd49212,2448
+- completed:
+    hackage: scotty-0.21@sha256:d17f6aa30fc4763670922b3e554db35858b9f7aa9c19937c47568480c4d1e031,5948
+    pantry-tree:
+      sha256: 9999357ebe8e98b9f52da601a7c051819c661ea8381825078f990266b32c335b
+      size: 2068
+  original:
+    hackage: scotty-0.21
+- completed:
+    hackage: bytestring-0.11.5.3@sha256:3eee5d3658b657371d0f940f1f38feefc2ebdf8592a32d3d0734f28c61f80ba0,7595
+    pantry-tree:
+      sha256: bb97a05a67b1ea6c61af66e5abbbb0094bc397c1a930348442a41619026191ee
+      size: 4019
+  original:
+    hackage: bytestring-0.11.5.3
+- completed:
+    hackage: text-2.0.2@sha256:71b5fa8c64d3c1fd0a08f993463220867b08290a2256e94b0952bf0e8f5a45cc,9905
+    pantry-tree:
+      sha256: 25f3b6dd211e30f9e0ef5047bb9f30df7a9296cf1043873e31558196dfe78676
+      size: 7514
+  original:
+    hackage: text-2.0.2
 snapshots:
 - completed:
     sha256: 56ef9e03804cb4827866e762dc9752eeb392adda8f4811690da110dd9a165b9e

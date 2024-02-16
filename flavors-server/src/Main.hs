@@ -1,7 +1,7 @@
-module Main where
+module Main (main) where
 
-import qualified FlavorsServer (serve)
+import Server.Utils (runServer)
 
 main :: IO ()
-main = do
-  FlavorsServer.serve
+main =
+  runServer

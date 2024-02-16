@@ -1,5 +1,6 @@
-{ pkgs ? import <nixpkgs> { } }:
-
+{
+  pkgs ? import <nixpkgs> { }
+}:
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     haskell-language-server
@@ -18,6 +19,9 @@ pkgs.mkShell {
     gcc
 
     zlib
+
+    poetry
+    python3
 
     direnv
   ];
