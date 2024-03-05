@@ -10,15 +10,15 @@ features
 
 TODOs
 -----
-  - ( ) Flavors-server
-    -- (x) Ingredients NLP (Python)
-    -- ( ) Server interface (Haskell)
-    -- ( ) JSON database
-    -- ( ) Database migration with Ingredients NLP
-
-  - ( ) Flavors-Client
-    -- ( ) Non-graphical client
-    -- ( ) Implement Graphical UI
+  - [ ] Flavors-server
+    - [X] Ingredients NLP (Python)
+    - [X] JSON database
+      - [x] Database migration with Ingredients NLP
+    - [ ] Server interface (Haskell)
+          
+  - [ ] Flavors-Client
+    - [ ] Non-graphical client
+    - [ ] Implement Graphical UI
 
 Libraries/Packages used & Documentation.
 ----------------------------------------
