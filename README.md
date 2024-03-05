@@ -27,7 +27,8 @@ Libraries/Packages used & Documentation.
   - [Qt](https://www.qt.io/)
 
 
-Diagram: ```
+Diagram:
+```
 ┌─────────────────┐
 │    flavors      │                 
 └───────────┬─────┘
