@@ -21,21 +21,23 @@ type Mutation {
 input IngredientInput {
   name: String!
   quantity: String!
+  unit: String!
 }
 
 type Recipe {
   id: ID!
-  title: String!
+  author: String!
+  name: String!
   description: String!
-  ingredients: [Ingredient!]!
   instructions: [String!]!
-  cuisine: Cuisine!
+  ingredients: [Ingredient!]!
 }
 
 type Ingredient {
   id: ID!
   name: String!
   quantity: String!
+  unit: String!
 }
 
 enum Cuisine {

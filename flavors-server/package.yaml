@@ -7,6 +7,7 @@ maintainer: "Andy Zheng"
 extra-source-files:
 - package.yaml
 - assets/schema.gql
+- assets/recipes.json
 
 dependencies:
   - morpheus-graphql
