@@ -2,10 +2,9 @@
   description = "Flavors Recipe Database (0.1.0)";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Setting up poetry capabilities.
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,61 +13,22 @@
 
   outputs = { self, nixpkgs, poetry2nix, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages.${system};
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryEnv;
       in {
         packages = {
-          # Poetry environment for migration scripts.
-          flavors-migration = poetry2nix.mkPoetryEnv {
+          flavors-migration = mkPoetryEnv {
             projectDir = ./flavors-scripts/migration;
-            python = pkgs.python3;
           };
 
-          devShells.default = pkgs.mkShell {
-            inputsFrom = [
-              self.packages.flavors-migration
-              self.packages.python
-              self.packages.cpp
-              self.packages.haskell
-            ];
-          }
-
-          # Python environment with pre-commit installed.
-          python = pkgs.mkShell {
-            name = "flavors-python-env";
+          flavors-env = pkgs.mkShell {
+            name = "flavors";
 
             buildInputs = with pkgs; [
               python3
-              pre-commit
-            ];
+              poetry
 
-            shellHook = ''
-              pre-commit install
-            '';
-          };
-
-          # C++ environment with pre-commit installed.
-          cpp = pkgs.mkShell {
-            name = "flavors-cpp-env";
-
-            buildInputs = with pkgs; [
-              clang-tools
-              cmake
-              libgcc
-              zlib
-              gcc
-              pre-commit
-            ];
-
-            shellHook = ''
-              pre-commit install
-            '';
-          };
-
-          # Haskell environment with pre-commit installed.
-          haskell = pkgs.mkShell {
-            name = "flavors-haskell-env";
-
-            buildInputs = with pkgs; [
               haskell-language-server
               ghc
 
@@ -78,12 +38,28 @@
 
               haskellPackages.digest
               haskellPackages.stack
+
+              clang-tools
+              cmake
+              libgcc
+              zlib
+              gcc
+
+              pre-commit
+              nodejs
             ];
 
             shellHook = ''
               pre-commit install
+
+              export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+                pkgs.stdenv.cc.cc
+              ]}
             '';
           };
+
+          default = self.packages.${system}.flavors-env;
         };
-      });
+    }
+  );
 }

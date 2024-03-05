@@ -12,30 +12,15 @@ repos:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: stable
+    rev: v5.10.1
     hooks:
       - id: isort
 
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.352
-    hooks:
-      - id: pyright
-
   # C++
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v17.0.6
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
     hooks:
       - id: clang-format
-
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: master
-    hooks:
       - id: clang-tidy
       - id: cppcheck
       - id: uncrustify
-
-  # Haskell
-  - repo: https://github.com/pre-commit/mirrors-hlint
-    rev: stable
-    hooks:
-      - id: hlint

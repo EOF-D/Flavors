@@ -2,3 +2,4 @@
 dist-newstyle
 flavors-server.cabal
 __pycache__
+.direnv

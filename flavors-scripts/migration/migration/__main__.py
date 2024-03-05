@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import sys
 from json import dumps, loads
-from typing import NamedTuple
+from typing import TYPE_CHECKING, List, NamedTuple, TypedDict
 
+# pyright: reportMissingTypeStubs=false
 from ingredient_parser import parse_ingredient
-from ingredient_parser.postprocess import CompositeIngredientAmount
+
+if TYPE_CHECKING:
+    from ingredient_parser.postprocess import CompositeIngredientAmount
+
+PATH: str = "../../../flavors-server"
 
 
+# TODO: Refactor this file to be better.
 class Ingredient(NamedTuple):
     name: str
     quantity: str
@@ -14,21 +21,33 @@ class Ingredient(NamedTuple):
     preparations: str
 
 
-class Recipe(NamedTuple):
+class Recipe(TypedDict):
+    id: str
+    author: str
+    name: str
+    description: str
+    steps: list[str]
+    instructions: list[str]
+    ingredients: list[str]
+
+
+class ParsedRecipe(TypedDict):
     id: str
     author: str
     name: str
     description: str
     instructions: list[str]
-    ingredients: list[Ingredient]
+    ingredients: list[Ingredient] | list[str]
 
 
-def parse(recipe: dict) -> Recipe:
-    ingredients: list[Ingredient] = []
+def parse(recipe: Recipe, nlp: bool) -> ParsedRecipe:
+    ingredients: List[Ingredient] = []
 
     for raw_str in recipe["ingredients"]:
-        extracted = parse_ingredient(raw_str)
+        if not nlp:
+            continue
 
+        extracted = parse_ingredient(raw_str)
         for quantity in extracted.amount:
             if isinstance(quantity, CompositeIngredientAmount):
                 continue
@@ -45,26 +64,32 @@ def parse(recipe: dict) -> Recipe:
                 )
             )
 
-    return Recipe(
-        recipe["id"],
-        recipe["author"],
-        recipe["name"],
-        recipe["description"],
-        recipe["steps"],
-        ingredients,
+    instructions: list[str] = []
+    for step in recipe["steps" if nlp else "instructions"]:
+        instructions.append(step)
+
+    return ParsedRecipe(
+        id=recipe["id"],
+        author=recipe["author"],
+        name=recipe["name"],
+        description=recipe["description"],
+        instructions=recipe["steps"] if nlp else recipe["instructions"],
+        ingredients=ingredients if nlp else recipe["ingredients"],
     )
 
 
-def migrate() -> list[Recipe]:
-    database: list[Recipe] = []
+def migrate(nlp: bool) -> List[ParsedRecipe]:
+    database: List[ParsedRecipe] = []
 
-    with open("../assets/recipes.json", "r") as file:
+    with open(f"{PATH}/assets/recipes.json", "r") as file:
         for recipe in loads(file.read()):
-            database.append(parse(recipe))
+            database.append(parse(recipe, nlp))
 
     return database
 
 
 if __name__ == "__main__":
-    with open("../assets/test.json", "w") as fp:
-        fp.write(dumps([recipe._asdict() for recipe in migrate()], indent=2))
+    nlp: bool = len(sys.argv) > 1 and sys.argv[1] == "nlp"
+
+    with open(f"{PATH}/assets/recipes.json", "w") as file:
+        file.write(dumps([recipe._asdict() for recipe in migrate(nlp)], indent=2))  # type: ignore
