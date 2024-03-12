@@ -41,6 +41,7 @@ end
 class Schema
   # @return [Query] the query root
   attr_reader :query
+
   # @return [Mutation] the mutation root
   attr_reader :mutation
 
