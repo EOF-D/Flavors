@@ -1,65 +1,120 @@
 {
-  description = "Flavors Recipe Database (0.1.0)";
-
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    systems.url = "github:nix-systems/default";
+    devenv.url = "github:cachix/devenv";
   };
 
-  outputs = { self, nixpkgs, poetry2nix, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryEnv;
-      in {
-        packages = {
-          flavors-migration = mkPoetryEnv {
-            projectDir = ./flavors-scripts/migration;
-          };
+  nixConfig = {
+    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+    extra-substituters = "https://devenv.cachix.org";
+  };
 
-          flavors-env = pkgs.mkShell {
-            name = "flavors";
+  outputs = { self, nixpkgs, devenv, systems, ... } @ inputs:
+    let
+      forEachSystem = nixpkgs.lib.genAttrs (import systems);
+    in
+    {
+      packages = forEachSystem (system: {
+        devenv-up = self.devShells.${system}.flavors-db.config.procfileScript;
+      });
 
-            buildInputs = with pkgs; [
-              python3
-              poetry
+      devShells = forEachSystem
+        (system:
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+          in rec
+          {
+            flavors-client = devenv.lib.mkShell {
+              inherit inputs pkgs;
 
-              haskell-language-server
-              ghc
+              modules = [
+                {
+                  packages = with pkgs; [
+                   clang-tools
+                   cmake
+                   zlib
+                   gcc
+                   gnumake
+                  ];
 
-              cabal-install
-              cabal2nix
-              hpack
+                  pre-commit.hooks = {
+                    clang-format.enable = true;
+                    clang-tidy.enable = true;
+                  };
 
-              haskellPackages.digest
-              haskellPackages.stack
+                  scripts.build-client.exec = ''
+                    mkdir -p ./bin
+                    cp ./flavors-client -r ./bin
+                    cd ./bin/flavors-client/
+                    cmake .
+                    make
+                  '';
+                }
+              ];
+            };
 
-              clang-tools
-              cmake
-              libgcc
-              zlib
-              gcc
+            flavors-server = devenv.lib.mkShell {
+              inherit inputs pkgs;
 
-              pre-commit
-              nodejs
-            ];
+              modules = [
+                {
+                  languages.ruby.enable = true;
 
-            shellHook = ''
-              pre-commit install
+                  enterShell = ''
+                    cd flavors-server
+                    bundle install
+                  '';
+                }
+              ];
+            };
 
-              export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
-                pkgs.stdenv.cc.cc
-              ]}
-            '';
-          };
+            flavors-migration = devenv.lib.mkShell {
+              inherit inputs pkgs;
 
-          default = self.packages.${system}.flavors-env;
-        };
-    }
-  );
+              modules = [
+                {
+                  packages = with pkgs; [
+                    zlib
+                    poetry
+                    python3
+                    libcxx
+                  ];
+
+                  enterShell = ''
+                    export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+                      pkgs.stdenv.cc.cc
+                    ]}
+                  '';
+
+                  pre-commit.hooks = {
+                    black.enable = true;
+                    isort.enable = true;
+                    pyright.enable = false; # TODO: Turn on after setting path.
+                  };
+                }
+              ];
+            };
+
+            flavors-db = devenv.lib.mkShell {
+              inherit inputs pkgs;
+              modules = [
+                {
+                  packages = with pkgs; [
+                    bundler
+                    ruby
+                  ];
+
+                  enterShell = ''
+                    cd flavors-server
+                    bundle install
+                  '';
+
+                  processes.api.exec = "cd flavors-server && bundle && ruby app.rb &";
+                  services.redis.enable = true;
+                }
+              ];
+            };
+          });
+    };
 }

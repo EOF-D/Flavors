@@ -11,10 +11,10 @@ features
 TODOs
 -----
   - [ ] Flavors-server
-    - [X] Ingredients NLP (Python)
-    - [X] JSON database
+    - [x] Ingredients NLP (Python)
+    - [x] JSON database
       - [x] Database migration with Ingredients NLP
-    - [ ] Server interface (Haskell)
+    - [x] Server interface (Ruby)
           
   - [ ] Flavors-Client
     - [ ] Non-graphical client
@@ -23,45 +23,7 @@ TODOs
 Libraries/Packages used & Documentation.
 ----------------------------------------
   - [Ingredient NLP](https://github.com/strangetom/ingredient-parser)
-  - [Morpheus-GraphQL](https://github.com/morpheusgraphql/morpheus-graphql)
+  - [JWT-Ruby](https://github.com/jwt/ruby-jwt)
+  - [Agoo](https://github.com/ohler55/agoo/)
+  - [Redis-py](https://redis-py.readthedocs.io/en/stable/)
   - [Qt](https://www.qt.io/)
-
-
-Diagram:
-```
-┌─────────────────┐
-│    flavors      │                 
-└───────────┬─────┘
-            │
-       ┌────┴───────┐
-       │ Build Files│
-       │ (CMake,    │
-       │ Cabal,     │
-       │ Stack,     │
-       │ Nix)       │
-       └────┬───────┘
-            │
-   ┌────────┴───────┐
-   │                │
-┌──┴───┐       ┌────┴─────┐
-│client│       │  server  │
-└───┬──┘       └────┬─────┘
-    │               │
-    │               │
-┌───┴──────────┐    │    ┌───────────┐
-│C++ Frontend  │    │    │ Haskell   │
-│ (Qt library) │    ├────│  Backend  │
-└──────────────┘    │    └───────────┘
-                    │
-      ┌─────────────┘
-      │
- ┌────┴───────┐
- │Python-based│
- │  Migration │
- └────┬───────┘
-      │
-      │
-┌─────┴─────────────────┐
-│Database (recipes.json)│
-└───────────────────────┘
-```

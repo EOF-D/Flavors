@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    agoo (2.15.9)
+    base64 (0.2.0)
+    jwt (2.8.1)
+      base64
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  agoo
+  jwt
+
+RUBY VERSION
+   ruby 3.1.4p223
+
+BUNDLED WITH
+   2.4.22

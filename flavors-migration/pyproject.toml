@@ -5,17 +5,21 @@ description = ""
 authors = ["EOF-D <END-OFD@pm.me>"]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<=3.12"
+python = ">=3.10,<=3.12"
 black = "^24.2.0"
 isort = "^5.13.2"
 ingredient-parser-nlp = "^0.1.0b8"
 pandas = "^2.2.1"
 numpy = "^1.26.4"
 pyright = "^1.1.352"
+redis = "^5.0.3"
+python-crfsuite = "^0.9.10"
 
 [tool.pyright]
 typeCheckingMode = "strict"
 reportMissingImports = false
+reportMissingTypeStubs = false
+
 
 [build-system]
 requires = ["poetry-core"]

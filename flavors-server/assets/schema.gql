@@ -1,50 +1,31 @@
 type Query {
-  getRecipe(id: ID!): Recipe!
-  getRecipeByTitle(title: String!): Recipe!
-  getRecipeByIngredients(ingredients: [String!]!): [Recipe!]!
-  getRecipesByCuisine(cuisine: Cuisine!): [Recipe!]!
-  getRecipes: [Recipe!]!
+  getRecipe(id: ID!): Recipe
 }
 
-type Mutation {
-  addRecipe(
-    title: String!
-    description: String!
-    ingredients: [IngredientInput!]!
-    instructions: [String!]!
-    cuisine: Cuisine!
-  ): Recipe!
-
-  removeRecipe(id: ID!): Recipe
-}
-
-input IngredientInput {
-  name: String!
-  quantity: String!
-  unit: String!
-}
+type Mutation {}
 
 type Recipe {
   id: ID!
-  author: String!
+  url: String!
   name: String!
   description: String!
-  instructions: [String!]!
+  author: String!
+  ratings: Int!
   ingredients: [Ingredient!]!
+  steps: [String!]!
+  times: Times!
+  serves: Int!
+  difficult: String!
 }
 
 type Ingredient {
-  id: ID!
   name: String!
-  quantity: String!
   unit: String!
+  quantity: String!
+  preparation: String
 }
 
-enum Cuisine {
-  AMERICAN,
-  ASIAN,
-  FRENCH,
-  ITALIAN,
-  MEXICAN,
-  OTHER
+type Times {
+  Preparation: String!
+  Cooking: String!
 }
