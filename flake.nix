@@ -16,7 +16,7 @@
     in
     {
       packages = forEachSystem (system: {
-        devenv-up = self.devShells.${system}.flavors-db.config.procfileScript;
+        devenv-up = self.devShells.${system}.flavors-server.config.procfileScript;
       });
 
       devShells = forEachSystem
@@ -59,12 +59,28 @@
 
               modules = [
                 {
+                  packages = with pkgs; [ 
+                    libpqxx
+                  ];
+
                   languages.ruby.enable = true;
 
                   enterShell = ''
                     cd flavors-server
                     bundle install
                   '';
+
+                  services.postgres = {
+                    enable = true;
+                    port = 5432;
+                    listen_addresses = "127.0.0.1";
+
+                    package = pkgs.postgresql;
+
+                    initialDatabases = [
+                      { name = "flavors-db"; schema = ./flavors-server/assets/schema.sql; }
+                    ];
+                  };
                 }
               ];
             };
@@ -92,26 +108,6 @@
                     isort.enable = true;
                     pyright.enable = false; # TODO: Turn on after setting path.
                   };
-                }
-              ];
-            };
-
-            flavors-db = devenv.lib.mkShell {
-              inherit inputs pkgs;
-              modules = [
-                {
-                  packages = with pkgs; [
-                    bundler
-                    ruby
-                  ];
-
-                  enterShell = ''
-                    cd flavors-server
-                    bundle install
-                  '';
-
-                  processes.api.exec = "cd flavors-server && bundle && ruby app.rb &";
-                  services.redis.enable = true;
                 }
               ];
             };

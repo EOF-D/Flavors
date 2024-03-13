@@ -6,8 +6,6 @@ from typing import TypedDict
 
 from ingredient_parser import parse_ingredient
 from ingredient_parser.postprocess import CompositeIngredientAmount
-from redis import Redis
-from redis.commands.json.path import Path
 
 PATH = (
     dirname(dirname(abspath(__file__))) + "/../flavors-server/assets/raw/recipes.json"
@@ -98,40 +96,24 @@ def parse(recipe: Recipe) -> ParsedRecipe:
 
 
 def format() -> None:
-    migrated: list[ParsedRecipe] = []
+    formatted: list[ParsedRecipe] = []
 
     with open(PATH, "r") as file:
         recipes = loads(file.read())
 
         for recipe in recipes:
-            migrated.append(parse(recipe))
+            formatted.append(parse(recipe))
 
     with open(PATH, "w") as file:
-        file.write(dumps(migrated, indent=4))
-
-
-def migrate() -> None:
-    redis = Redis(host="localhost", port=6379, db=0)
-
-    with open(PATH, "r") as file:
-        recipes = loads(file.read())
-
-        for recipe in recipes:
-            redis.set(
-                f"recipes:{recipe['id']}", dumps(recipe)
-            )  # TODO: REPLACE WITH FLATTEN
+        file.write(dumps(formatted, indent=4))
 
 
 if __name__ == "__main__":
-    ui = input("Commands: (1)format, 2(migrate), 3(exit): ")
+    ui = input("Commands: (1)format, 2(exit): ")
 
     if ui.lower() == "1":
         format()
         print("Format complete")
 
     elif ui.lower() == "2":
-        migrate()
-        print("Migration complete")
-
-    elif ui.lower() == "3":
         exit()

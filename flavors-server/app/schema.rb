@@ -17,10 +17,10 @@ class Query
   # @return [Recipe] the recipe with the specified ID
   # @raise [ArgumentError] if no recipe is found with the specified ID
   def getRecipe(args)
-    recipe = @recipes.find { |r| r.id == args["id"] }
+    recipe = @recipes.find { |r| r.id == args['id'] }
     return recipe if recipe
 
-    raise ArgumentError, "Recipe not found for ID: #{args["id"]}"
+    raise ArgumentError, "Recipe not found for ID: #{args['id']}"
   end
 end
 
@@ -49,9 +49,7 @@ class Schema
   def initialize
     recipes = []
 
-    # Load recipes from a JSON file
-    # TODO: Replace with redis
-    JSON.parse(File.read(__dir__ + "/../assets/raw/recipes.json")).each do |recipe|
+    JSON.parse(File.read(__dir__ + '/../assets/raw/recipes.json')).each do |recipe|
       recipes << Recipe.new(recipe)
     end
 
