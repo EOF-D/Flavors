@@ -66,16 +66,13 @@ class Query
   # Fetches the steps for a given recipe ID from the database.
   #
   # @param recipe_id [String] the ID of the recipe
-  # @return [Array<Hash>] an array of step data
+  # @return [Array<String>] an array of strings
   def fetch_steps(recipe_id)
     steps = []
     result = @conn.exec_params("SELECT * FROM steps WHERE recipe_id = $1 ORDER BY step_number", [recipe_id])
 
     result.each do |row|
-      steps << {
-        "step_number" => row["step_number"],
-        "step_text" => row["step_text"]
-      }
+      steps[row["step_number"].to_i] = row["step_text"]
     end
 
     steps
@@ -84,18 +81,15 @@ class Query
   # Fetches the times for a given recipe ID from the database.
   #
   # @param recipe_id [String] the ID of the recipe
-  # @return [Hash] a hash containing the preparation time and cooking time
+  # @return [Times] a Times instance containing the preparation time and cooking time
   def fetch_times(recipe_id)
     times_result = @conn.exec_params("SELECT * FROM times WHERE recipe_id = $1", [recipe_id])
 
-    return {"preparation_time" => nil, "cooking_time" => nil} if times_result.ntuples.zero?
+    if times_result.ntuples.zero?
+      return {"preparation_time" => nil, "cooking_time" => nil}
+    end
 
-    times_row = times_result.first
-
-    {
-      "preparation_time" => times_row["preparation_time"],
-      "cooking_time" => times_row["cooking_time"]
-    }
+    Times.new(times_result.first)
   end
 
   # Closes the database connection.

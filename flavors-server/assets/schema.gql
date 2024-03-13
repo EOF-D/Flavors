@@ -26,6 +26,6 @@ type Ingredient {
 }
 
 type Times {
-  Preparation: String!
-  Cooking: String!
+  preparation: String!
+  cooking: String!
 }
