@@ -85,7 +85,7 @@
               ];
             };
 
-            flavors-migration = devenv.lib.mkShell {
+            flavors-nlp = devenv.lib.mkShell {
               inherit inputs pkgs;
 
               modules = [

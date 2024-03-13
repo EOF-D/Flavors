@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "migration"
+name = "flavors-nlp"
 version = "0.1.0"
 description = ""
 authors = ["EOF-D <END-OFD@pm.me>"]
