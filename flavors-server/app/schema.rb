@@ -1,13 +1,10 @@
+require "pg"
+
 # This class represents the GraphQL query root for recipes.
 class Query
-  # @return [Array<Recipe>] the list of recipes
-  attr_reader :recipes
-
   # Initializes a new instance of the Query class.
-  #
-  # @param recipes [Array<Recipe>] the list of recipes
-  def initialize(recipes)
-    @recipes = recipes
+  def initialize
+    @conn = PG.connect(dbname: "flavors-db")
   end
 
   # Retrieves a recipe by its ID.
@@ -17,24 +14,98 @@ class Query
   # @return [Recipe] the recipe with the specified ID
   # @raise [ArgumentError] if no recipe is found with the specified ID
   def getRecipe(args)
-    recipe = @recipes.find { |r| r.id == args['id'] }
-    return recipe if recipe
+    id = args["id"]
+    recipe_result = @conn.exec_params("SELECT * FROM recipes WHERE id = $1", [id])
 
-    raise ArgumentError, "Recipe not found for ID: #{args['id']}"
+    if recipe_result.ntuples.zero?
+      raise ArgumentError, "Recipe not found for ID: #{args["id"]}" if recipe_result.ntuples.zero?
+    end
+
+    recipe_row = recipe_result.first
+    ingredients = fetch_ingredients(id)
+    steps = fetch_steps(id)
+    times = fetch_times(id)
+
+    data = {
+      "id" => recipe_row["id"],
+      "url" => recipe_row["url"],
+      "name" => recipe_row["name"],
+      "author" => recipe_row["author"],
+      "ratings" => recipe_row["ratings"].to_i,
+      "description" => recipe_row["description"],
+      "ingredients" => ingredients,
+      "steps" => steps,
+      "times" => times,
+      "serves" => recipe_row["serves"].to_i,
+      "difficult" => recipe_row["difficulty"]
+    }
+
+    Recipe.new(data)
+  end
+
+  # Fetches the ingredients for a given recipe ID from the database.
+  #
+  # @param recipe_id [String] the ID of the recipe
+  # @return [Array<Hash>] an array of ingredient data
+  def fetch_ingredients(recipe_id)
+    ingredients = []
+    result = @conn.exec_params("SELECT * FROM ingredients WHERE recipe_id = $1", [recipe_id])
+
+    result.each do |row|
+      ingredients << {
+        "name" => row["name"],
+        "quantity" => row["quantity"],
+        "unit" => row["unit"],
+        "preparation" => row["preparation"]
+      }
+    end
+
+    ingredients
+  end
+
+  # Fetches the steps for a given recipe ID from the database.
+  #
+  # @param recipe_id [String] the ID of the recipe
+  # @return [Array<Hash>] an array of step data
+  def fetch_steps(recipe_id)
+    steps = []
+    result = @conn.exec_params("SELECT * FROM steps WHERE recipe_id = $1 ORDER BY step_number", [recipe_id])
+
+    result.each do |row|
+      steps << {
+        "step_number" => row["step_number"],
+        "step_text" => row["step_text"]
+      }
+    end
+
+    steps
+  end
+
+  # Fetches the times for a given recipe ID from the database.
+  #
+  # @param recipe_id [String] the ID of the recipe
+  # @return [Hash] a hash containing the preparation time and cooking time
+  def fetch_times(recipe_id)
+    times_result = @conn.exec_params("SELECT * FROM times WHERE recipe_id = $1", [recipe_id])
+
+    return {"preparation_time" => nil, "cooking_time" => nil} if times_result.ntuples.zero?
+
+    times_row = times_result.first
+
+    {
+      "preparation_time" => times_row["preparation_time"],
+      "cooking_time" => times_row["cooking_time"]
+    }
+  end
+
+  # Closes the database connection.
+  def close
+    @conn&.close
   end
 end
 
 # This class represents the GraphQL mutation root.
 class Mutation
-  # @return [Array<Recipe>] the list of recipes
-  attr_reader :recipes
-
-  # Initializes a new instance of the Mutation class.
-  #
-  # @param recipes [Array<Recipe>] the list of recipes
-  def initialize(recipes)
-    @recipes = recipes
-  end
 end
 
 # This class represents the GraphQL schema.
@@ -47,14 +118,8 @@ class Schema
 
   # Initializes a new instance of the Schema class.
   def initialize
-    recipes = []
-
-    JSON.parse(File.read(__dir__ + '/../assets/raw/recipes.json')).each do |recipe|
-      recipes << Recipe.new(recipe)
-    end
-
-    @query = Query.new(recipes)
-    @mutation = Mutation.new(recipes)
+    @query = Query.new
+    @mutation = Mutation.new
   end
 
   def query(_, req)

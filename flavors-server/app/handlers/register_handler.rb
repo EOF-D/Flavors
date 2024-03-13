@@ -24,6 +24,6 @@ class RegisterHandler
     token = JWT.encode(payload, rsa_private, "RS256")
 
     # Return a successful response with the generated token
-    [200, {}, ["Token: #{token}"]]
+    [200, {}, [token]]
   end
 end
