@@ -1,63 +1,55 @@
-# This class represents a recipe with its ingredients, steps, and other details.
-class Recipe
-  # @return [String] the unique identifier of the recipe
-  attr_reader :id
+module Flavors
+  # Represents a recipe with its associated data.
+  class Recipe
+    # @return [Integer] The ID of the recipe.
+    attr_reader :id
 
-  # @return [String] the URL of the recipe
-  attr_reader :url
+    # @return [String] The URL of the recipe.
+    attr_reader :url
 
-  # @return [String] the name of the recipe
-  attr_reader :name
+    # @return [String] The name of the recipe.
+    attr_reader :name
 
-  # @return [String] the author of the recipe
-  attr_reader :author
+    # @return [String] The author of the recipe.
+    attr_reader :author
 
-  # @return [Array<Int>] the ratings of the recipe
-  attr_reader :ratings
+    # @return [Integer] The rating of the recipe.
+    attr_reader :ratings
 
-  # @return [String] the description of the recipe
-  attr_reader :description
+    # @return [String] The description of the recipe.
+    attr_reader :description
 
-  # @return [Array<Ingredient>] the list of ingredients in the recipe
-  attr_reader :ingredients
+    # @return [Array<Ingredient>] An array of Ingredient objects representing the recipe's ingredients.
+    attr_reader :ingredients
 
-  # @return [Array<String>] the steps to prepare the recipe
-  attr_reader :steps
+    # @return [Array<String>] An array of strings representing the recipe's steps.
+    attr_reader :steps
 
-  # @return [Hash] a hash containing the preparation time and cooking time
-  attr_reader :times
+    # @return [Times, Hash] A Times object containing the recipe's preparation and cooking times, or
+    #   a Hash with nil values if no times are found.
+    attr_reader :times
 
-  # @return [Integer] the number of servings the recipe yields
-  attr_reader :serves
+    # @return [Integer] The number of servings the recipe yields.
+    attr_reader :serves
 
-  # @return [String] the difficulty level of the recipe
-  attr_reader :difficult
+    # @return [String] The difficulty level of the recipe.
+    attr_reader :difficult
 
-  # Initializes a new instance of the Recipe class.
-  #
-  # @param data [Hash] a hash containing the recipe data
-  # @option data [String] 'id' the unique identifier of the recipe
-  # @option data [String] 'url' the URL of the recipe
-  # @option data [String] 'name' the name of the recipe
-  # @option data [String] 'author' the author of the recipe
-  # @option data [Array<Float>] 'ratings' the ratings of the recipe
-  # @option data [String] 'description' the description of the recipe
-  # @option data [Array<Hash>] 'ingredients' the list of ingredient data
-  # @option data [Array<String>] 'steps' the steps to prepare the recipe
-  # @option data [Hash] 'times' a hash containing the preparation time and cooking time
-  # @option data [Integer] 'serves' the number of servings the recipe yields
-  # @option data [String] 'difficult' the difficulty level of the recipe
-  def initialize(data)
-    @id = data["id"]
-    @url = data["url"]
-    @name = data["name"]
-    @author = data["author"]
-    @ratings = data["ratings"]
-    @description = data["description"]
-    @ingredients = data["ingredients"]
-    @steps = data["steps"]
-    @times = data["times"]
-    @serves = data["serves"]
-    @difficult = data["difficult"]
+    # Initializes a new instance of the Recipe class with recipe data.
+    #
+    # @param [Hash] data A Hash containing the recipe data.
+    def initialize(data)
+      @id = data["id"]
+      @url = data["url"]
+      @name = data["name"]
+      @author = data["author"]
+      @ratings = data["ratings"]
+      @description = data["description"]
+      @ingredients = data["ingredients"]
+      @steps = data["steps"]
+      @times = data["times"]
+      @serves = data["serves"]
+      @difficult = data["difficult"]
+    end
   end
 end

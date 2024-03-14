@@ -1,118 +1,157 @@
 require "pg"
 
-# This class represents the GraphQL query root for recipes.
-class Query
-  # Initializes a new instance of the Query class.
-  def initialize
-    @conn = PG.connect(dbname: "flavors-db")
-  end
+# @title Recipe Query and Schema
+#
+# @description This module contains classes for querying recipe data from a PostgreSQL database
+#   and managing the schema for queries and mutations.
+module Flavors
+  # @!group Classes
 
-  # Retrieves a recipe by its ID.
+  # @!macro [new] query_class
+  #   @param [String] dbname The name of the PostgreSQL database to connect to.
   #
-  # @param args [Hash] a hash containing the recipe ID
-  # @option args [String] 'id' the ID of the recipe to retrieve
-  # @return [Recipe] the recipe with the specified ID
-  # @raise [ArgumentError] if no recipe is found with the specified ID
-  def getRecipe(args)
-    id = args["id"]
-    recipe_result = @conn.exec_params("SELECT * FROM recipes WHERE id = $1", [id])
-
-    if recipe_result.ntuples.zero?
-      raise ArgumentError, "Recipe not found for ID: #{args["id"]}"
+  # Represents a query object that interacts with a PostgreSQL database to fetch recipe data.
+  class Query
+    # @param [String] dbname The name of the PostgreSQL database to connect to.
+    def initialize(dbname: "flavors-db")
+      @conn = PG.connect(dbname: dbname)
     end
 
-    recipe_row = recipe_result.first
-    ingredients = fetch_ingredients(id)
-    steps = fetch_steps(id)
-    times = fetch_times(id)
+    # Retrieves a recipe from the database based on the provided ID.
+    #
+    # @param [Hash] args A Hash containing the recipe ID as a string.
+    # @return [Recipe] A Recipe object containing the recipe data.
+    # @raise [ArgumentError] If no recipe is found for the provided ID.
+    def getRecipe(args)
+      id = args["id"]
+      recipe_result = @conn.exec_params("SELECT * FROM recipes WHERE id = $1", [id])
 
-    data = {
-      "id" => recipe_row["id"],
-      "url" => recipe_row["url"],
-      "name" => recipe_row["name"],
-      "author" => recipe_row["author"],
-      "ratings" => recipe_row["ratings"].to_i,
-      "description" => recipe_row["description"],
-      "ingredients" => ingredients,
-      "steps" => steps,
-      "times" => times,
-      "serves" => recipe_row["serves"].to_i,
-      "difficult" => recipe_row["difficulty"]
-    }
+      if recipe_result.ntuples.zero?
+        raise ArgumentError, "Recipe not found for ID: #{args["id"]}"
+      end
 
-    Recipe.new(data)
-  end
+      recipe_row = recipe_result.first
+      ingredients = fetch_ingredients(id)
+      steps = fetch_steps(id)
+      times = fetch_times(id)
 
-  # Fetches the ingredients for a given recipe ID from the database.
-  #
-  # @param recipe_id [String] the ID of the recipe
-  # @return [Array<Hash>] an array of ingredient data
-  def fetch_ingredients(recipe_id)
-    ingredients = []
-    result = @conn.exec_params("SELECT * FROM ingredients WHERE recipe_id = $1", [recipe_id])
+      data = {
+        "id" => recipe_row["id"],
+        "url" => recipe_row["url"],
+        "name" => recipe_row["name"],
+        "author" => recipe_row["author"],
+        "ratings" => recipe_row["ratings"].to_i,
+        "description" => recipe_row["description"],
+        "ingredients" => ingredients,
+        "steps" => steps,
+        "times" => times,
+        "serves" => recipe_row["serves"].to_i,
+        "difficult" => recipe_row["difficulty"]
+      }
 
-    result.each do |row|
-      ingredients << Ingredient.new(row)
+      Recipe.new(data)
     end
 
-    ingredients
-  end
+    # Fetches the ingredients for a given recipe ID from the database.
+    #
+    # @param [Integer] recipe_id The ID of the recipe.
+    # @return [Array<Ingredient>] An array of Ingredient objects representing the recipe's ingredients.
+    def fetch_ingredients(recipe_id)
+      ingredients = []
+      result = @conn.exec_params("SELECT * FROM ingredients WHERE recipe_id = $1", [recipe_id])
 
-  # Fetches the steps for a given recipe ID from the database.
-  #
-  # @param recipe_id [String] the ID of the recipe
-  # @return [Array<String>] an array of strings
-  def fetch_steps(recipe_id)
-    steps = []
-    result = @conn.exec_params("SELECT * FROM steps WHERE recipe_id = $1 ORDER BY step_number", [recipe_id])
+      result.each do |row|
+        ingredients << Ingredient.new(row)
+      end
 
-    result.each do |row|
-      steps << row["step_text"]
+      ingredients
     end
 
-    steps
+    # Fetches the steps for a given recipe ID from the database.
+    #
+    # @param [Integer] recipe_id The ID of the recipe.
+    # @return [Array<String>] An array of strings representing the recipe's steps.
+    def fetch_steps(recipe_id)
+      steps = []
+      result = @conn.exec_params("SELECT * FROM steps WHERE recipe_id = $1 ORDER BY step_number", [recipe_id])
+
+      result.each do |row|
+        steps << row["step_text"]
+      end
+
+      steps
+    end
+
+    # Fetches the preparation and cooking times for a given recipe ID from the database.
+    #
+    # @param [Integer] recipe_id The ID of the recipe.
+    # @return [Times, Hash] A Times object containing the recipe's preparation and cooking times, or
+    #   a Hash with nil values if no times are found.
+    def fetch_times(recipe_id)
+      times_result = @conn.exec_params("SELECT * FROM times WHERE recipe_id = $1", [recipe_id])
+
+      if times_result.ntuples.zero?
+        return {"preparation" => nil, "cooking" => nil}
+      end
+
+      Times.new(times_result.first)
+    end
+
+    # Closes the database connection.
+    def close
+      @conn&.close
+    end
   end
 
-  # Fetches the times for a given recipe ID from the database.
-  #
-  # @param recipe_id [String] the ID of the recipe
-  # @return [Times] a Times instance containing the preparation time and cooking time
-  def fetch_times(recipe_id)
-    times_result = @conn.exec_params("SELECT * FROM times WHERE recipe_id = $1", [recipe_id])
-
-    return {"preparation_time" => nil, "cooking_time" => nil} if times_result.ntuples.zero?
-
-    Times.new(times_result.first)
+  # An empty class for handling mutations (not documented).
+  class Mutation
   end
 
-  # Closes the database connection.
-  def close
-    @conn&.close
-  end
-end
+  # Represents a schema that contains query and mutation objects.
+  class Schema
+    # @return [Query] The query object associated with the schema.
+    attr_reader :query
 
-# This class represents the GraphQL mutation root.
-class Mutation
-end
+    # @return [Mutation] The mutation object associated with the schema.
+    attr_reader :mutation
 
-# This class represents the GraphQL schema.
-class Schema
-  # @return [Query] the query root
-  attr_reader :query
+    # Initializes a new instance of the Schema class with a Query and Mutation object.
+    def initialize
+      @query = Query.new
+      @mutation = Mutation.new
+    end
 
-  # @return [Mutation] the mutation root
-  attr_reader :mutation
+    def query(_, req)
+      return @query if req.nil?
 
-  # Initializes a new instance of the Schema class.
-  def initialize
-    @query = Query.new
-    @mutation = Mutation.new
-  end
+      validate(req)
+      @query
+    end
 
-  def query(_, req)
-    return @query if req.nil?
+    # Validates a given request by verifying the JWT token using the public key and RS256 algorithm.
+    #
+    # @param req [Object] The request object.
+    # @raise [RuntimeError] If the 'Authorization' header is missing, the token has expired, or the token is invalid.
+    def validate(req)
+      # Raise an error if the 'Authorization' header is missing
+      raise "Authorization header is required" unless req.headers["HTTP_AUTHORIZATION"]
 
-    validate(req)
-    @query
+      # Extract the token from the 'Authorization' header
+      token = req.headers["HTTP_AUTHORIZATION"].split(" ").last
+
+      # Load the public key from the 'public.pem' file
+      rsa_public = OpenSSL::PKey::RSA.new(File.read("public.pem"))
+
+      begin
+        # Decode and verify the token using the public key and RS256 algorithm
+        JWT.decode(token, rsa_public, true, algorithm: "RS256")
+      rescue JWT::ExpiredSignature
+        # Raise an error if the token has expired
+        raise "Token has expired"
+      rescue JWT::DecodeError
+        # Raise an error if the token is invalid
+        raise "Invalid token"
+      end
+    end
   end
 end

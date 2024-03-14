@@ -1,5 +1,6 @@
 require "agoo"
 
+# Configuring Agoo
 Agoo::Log.configure(dir: "",
   console: true,
   classic: true,
@@ -14,10 +15,14 @@ Agoo::Log.configure(dir: "",
 
 Agoo::Server.init(6464, "root", thread_count: 1, graphql: "/api")
 
-Agoo::Server.use(JWTMiddleware)
-Agoo::Server.handle(:POST, "/register", RegisterHandler)
+# Loading middleware and handlers.
+Agoo::Server.use(Flavors::JWTMiddleware)
+Agoo::Server.handle(:POST, "/register", Flavors::RegisterHandler)
 
-Agoo::GraphQL.schema(Schema.new) { Agoo::GraphQL.load_file(__dir__ + "/../assets/schema.gql") }
+# Loading Schema.
+Agoo::GraphQL.schema(Flavors::Schema.new) { Agoo::GraphQL.load_file(__dir__ + "/../assets/schema.gql") }
+
+# Setting CORS headers.
 Agoo::GraphQL.build_headers = proc { |req|
   origin = req.headers["HTTP_ORIGIN"] || "*"
   {
