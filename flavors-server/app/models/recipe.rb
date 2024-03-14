@@ -54,7 +54,7 @@ class Recipe
     @author = data["author"]
     @ratings = data["ratings"]
     @description = data["description"]
-    @ingredients = data["ingredients"].map { |i| Ingredient.new(i) }
+    @ingredients = data["ingredients"]
     @steps = data["steps"]
     @times = data["times"]
     @serves = data["serves"]

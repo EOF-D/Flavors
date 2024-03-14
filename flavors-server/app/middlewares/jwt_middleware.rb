@@ -1,3 +1,5 @@
+require_relative "../../utils/rsa"
+
 # This middleware is responsible for authenticating requests using JSON Web Tokens (JWT)
 # with the RS256 algorithm and public key encryption.
 class JWTMiddleware
@@ -5,6 +7,7 @@ class JWTMiddleware
   #
   # @param app [Object] The Rack application or middleware.
   def initialize(app)
+    generate
     @rsa_public = OpenSSL::PKey::RSA.new(File.read("public.pem"))
     @app = app
   end

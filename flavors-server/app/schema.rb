@@ -52,12 +52,7 @@ class Query
     result = @conn.exec_params("SELECT * FROM ingredients WHERE recipe_id = $1", [recipe_id])
 
     result.each do |row|
-      ingredients << {
-        "name" => row["name"],
-        "quantity" => row["quantity"],
-        "unit" => row["unit"],
-        "preparation" => row["preparation"]
-      }
+      ingredients << Ingredient.new(row)
     end
 
     ingredients
