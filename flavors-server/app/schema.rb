@@ -75,7 +75,6 @@ class Query
       steps << row["step_text"]
     end
 
-    Agoo::Log.info("Steps: #{steps.class}")
     steps
   end
 
