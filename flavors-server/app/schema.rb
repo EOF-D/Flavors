@@ -18,7 +18,7 @@ class Query
     recipe_result = @conn.exec_params("SELECT * FROM recipes WHERE id = $1", [id])
 
     if recipe_result.ntuples.zero?
-      raise ArgumentError, "Recipe not found for ID: #{args["id"]}" if recipe_result.ntuples.zero?
+      raise ArgumentError, "Recipe not found for ID: #{args["id"]}"
     end
 
     recipe_row = recipe_result.first
@@ -72,9 +72,10 @@ class Query
     result = @conn.exec_params("SELECT * FROM steps WHERE recipe_id = $1 ORDER BY step_number", [recipe_id])
 
     result.each do |row|
-      steps[row["step_number"].to_i] = row["step_text"]
+      steps << row["step_text"]
     end
 
+    Agoo::Log.info("Steps: #{steps.class}")
     steps
   end
 
@@ -85,9 +86,7 @@ class Query
   def fetch_times(recipe_id)
     times_result = @conn.exec_params("SELECT * FROM times WHERE recipe_id = $1", [recipe_id])
 
-    if times_result.ntuples.zero?
-      return {"preparation_time" => nil, "cooking_time" => nil}
-    end
+    return {"preparation_time" => nil, "cooking_time" => nil} if times_result.ntuples.zero?
 
     Times.new(times_result.first)
   end

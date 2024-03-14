@@ -12,7 +12,7 @@ type Recipe {
   author: String!
   ratings: Int!
   ingredients: [Ingredient!]!
-  steps: [String!]!
+  steps: [String]
   times: Times!
   serves: Int!
   difficult: String!
