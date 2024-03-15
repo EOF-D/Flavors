@@ -7,7 +7,7 @@ class CreateRecipes < ActiveRecord::Migration[7.1]
       t.integer :ratings
       t.text :description
       t.integer :serves
-      t.text :difficulty
+      t.text :difficult
       t.timestamps
     end
   end

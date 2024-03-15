@@ -12,7 +12,7 @@ data.each do |entry|
     ratings: entry["ratings"],
     description: entry["description"],
     serves: entry["serves"],
-    difficulty: entry["difficulty"]
+    difficult: entry["difficult"]
   )
 
   # Seed the ingredients for each recipe
@@ -34,8 +34,10 @@ data.each do |entry|
   end
 
   # Seed the times for each recipe
-  recipe.build_times(
-    preparation_time: entry["times"]["Preparation"],
-    cooking_time: entry["times"]["Cooking"]
+  times = RecipeTime.new(
+    preparation: entry["times"]["Preparation"],
+    cooking: entry["times"]["Cooking"]
   )
+
+  recipe.recipe_time = times
 end

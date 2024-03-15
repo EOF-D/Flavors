@@ -8,8 +8,12 @@ module Types
     field :ratings, Int, null: false
     field :ingredients, [Types::IngredientType], null: false
     field :steps, [String], null: false
-    field :times, Types::TimesType, null: false
+    field :times, Types::RecipeTimeType, null: false
     field :serves, Int, null: false
     field :difficult, String, null: false
+
+    def times
+      RecipeTime.find_by(recipe_id: object.id)
+    end
   end
 end

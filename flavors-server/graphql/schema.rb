@@ -1,8 +1,10 @@
 require "graphql"
 
-require_relative "types/recipe_type"
 require_relative "types/ingredient_type"
 require_relative "types/times_type"
+require_relative "types/recipe_type"
+
+require_relative "../models/recipe"
 
 module Types
   class QueryType < GraphQL::Schema::Object
@@ -12,7 +14,7 @@ module Types
     end
 
     def get_recipe(id:)
-      puts id
+      Recipe.find(id)
     end
   end
 

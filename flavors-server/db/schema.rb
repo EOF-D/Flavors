@@ -24,6 +24,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_15_000642) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "recipe_times", force: :cascade do |t|
+    t.uuid "recipe_id", null: false
+    t.text "preparation"
+    t.text "cooking"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "recipes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "url"
     t.text "name", null: false
@@ -31,7 +39,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_15_000642) do
     t.integer "ratings"
     t.text "description"
     t.integer "serves"
-    t.text "difficulty"
+    t.text "difficult"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -44,15 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_15_000642) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "times", force: :cascade do |t|
-    t.uuid "recipe_id", null: false
-    t.text "preparation_time"
-    t.text "cooking_time"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   add_foreign_key "ingredients", "recipes"
+  add_foreign_key "recipe_times", "recipes"
   add_foreign_key "steps", "recipes"
-  add_foreign_key "times", "recipes"
 end
