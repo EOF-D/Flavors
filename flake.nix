@@ -61,6 +61,7 @@
                 {
                   packages = with pkgs; [ 
                     libpqxx
+                    pgadmin4
                   ];
 
                   languages.ruby.enable = true;
@@ -79,11 +80,10 @@
                     package = pkgs.postgresql;
 
                     initialDatabases = [
-                      { name = "flavors-db"; schema = ./flavors-server/assets/schema.sql; }
+                      { name = "flavors-db"; } # schema = ./flavors-server/db/schema.sql; }
+                      { name = "flavors-db-dev";} # schema = ./flavors-server/db/schema.sql; }
                     ];
                   };
-                  
-                  processes.flavors-api.exec = "cd flavors-server && ruby app.rb";
                 }
               ];
             };

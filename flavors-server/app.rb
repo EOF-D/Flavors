@@ -1,13 +1,15 @@
-require "jwt"
+require "rake"
+require "sinatra"
+require "sinatra/json"
 
-require "./app/handlers/register_handler"
-require "./app/middlewares/jwt_middleware"
-require "./app/models/ingredient"
-require "./app/models/recipe"
-require "./app/models/times"
-require "./app/schema"
-require "./app/server"
+require "sinatra/activerecord"
+require "sinatra/activerecord/rake"
 
-# Start the server
-Agoo::Server.start
-sleep
+require_relative "models/recipe"
+require_relative "models/ingredient"
+require_relative "models/step"
+require_relative "models/times"
+
+class FlavorsApp < Sinatra::Base
+  set :database_file, "./config/database.yml"
+end
