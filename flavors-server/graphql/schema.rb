@@ -11,18 +11,26 @@ require_relative '../models/recipe'
 
 module Types
   class QueryType < GraphQL::Schema::Object
+    field :recipes, [Types::RecipeType], null: false do
+      description 'Get all recipes'
+    end
+
     field :get_recipe, Types::RecipeType, null: true do
       description 'Get a recipe by ID'
       argument :id, ID, required: true
     end
 
-    def get_recipe(id:)
-      Recipe.find(id)
-    end
-
     field :filter_recipes, [Types::RecipeType], null: false do
       description 'Search recipes by filter'
       argument :filter, Types::Inputs::FilterType, required: true
+    end
+
+    def recipes
+      Recipe.all
+    end
+
+    def get_recipe(id:)
+      Recipe.find_by(id: id)
     end
 
     def filter_recipes(filter:)

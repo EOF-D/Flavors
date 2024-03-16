@@ -64,7 +64,6 @@ GEM
       rack-protection (= 4.0.0)
       sinatra (= 4.0.0)
       tilt (~> 2.0)
-    sqlite3 (1.7.2-x86_64-linux)
     tilt (2.3.0)
     timeout (0.4.1)
     tzinfo (2.0.6)
@@ -83,7 +82,6 @@ DEPENDENCIES
   sinatra (~> 4.0)
   sinatra-activerecord (~> 2.0)
   sinatra-contrib (~> 4.0)
-  sqlite3 (~> 1.7)
 
 BUNDLED WITH
    2.4.13
