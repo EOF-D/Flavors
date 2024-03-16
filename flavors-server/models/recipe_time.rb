@@ -5,7 +5,7 @@ class RecipeTime < ActiveRecord::Base
   private
 
   def set_default_values
-    self.preparation = "No Time" if preparation.blank?
-    self.cooking = "No Time" if cooking.blank?
+    self.preparation = 'No Time' if preparation.blank?
+    self.cooking = 'No Time' if cooking.blank?
   end
 end
