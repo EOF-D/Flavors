@@ -9,7 +9,6 @@ require_relative 'types/inputs/times_type'
 require_relative 'types/inputs/filter_type'
 
 require_relative '../models/recipe'
-require_relative '../models/user'
 
 module Types
   class QueryType < GraphQL::Schema::Object
@@ -27,6 +26,11 @@ module Types
       argument :filter, Types::Inputs::FilterType, required: true
     end
 
+    field :get_user, Types::UserType, null: true do
+      description 'Get the user by ID'
+      argument :id, ID, required: true
+    end
+
     def recipes
       Recipe.all
     end
@@ -37,7 +41,6 @@ module Types
 
     def filter_recipes(filter:)
       recipes = Recipe.all
-
       recipes = recipes.where('recipes.name ILIKE ?', "%#{filter.name}%") if filter.name.present?
 
       if filter.ingredients.present?
@@ -49,34 +52,13 @@ module Types
 
       recipes
     end
+
+    def get_user(id:)
+      User.find_by(id: id)
+    end
   end
 
   class MutationType < GraphQL::Schema::Object
-    field :register_user, Types::UserType, null: true do
-      argument :username, String, required: true
-      argument :password, String, required: true
-    end
-
-    field :authenticate_user, GraphQL::Types::JSON, null: true do
-      argument :username, String, required: true
-      argument :password, String, required: true
-    end
-
-    def register_user(username:, password:)
-      user = User.new(username: username, password: password)
-      raise GraphQL::ExecutionError, user.errors.full_messages.join(', ') unless user.save
-
-      user
-    end
-
-    def authenticate_user(username:, password:)
-      user = User.find_by(username: username)
-      raise GraphQL::ExecutionError, 'Invalid username or password' unless user&.authenticate(password)
-
-      payload = { user_id: user.id }
-      token = Auth.encode(payload)
-      { user: user, token: token }
-    end
   end
 
   class Schema < GraphQL::Schema
