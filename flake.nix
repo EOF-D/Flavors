@@ -87,6 +87,8 @@
                     {name = "flavors-db-dev";}
                   ];
                 };
+
+                processes.flavors-api.exec = "cd flavors-server && rackup";
               }
             ];
           };

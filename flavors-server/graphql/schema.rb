@@ -3,6 +3,7 @@ require 'graphql'
 require_relative 'types/ingredient_type'
 require_relative 'types/times_type'
 require_relative 'types/recipe_type'
+require_relative 'types/user_type'
 
 require_relative 'types/inputs/times_type'
 require_relative 'types/inputs/filter_type'
@@ -25,6 +26,11 @@ module Types
       argument :filter, Types::Inputs::FilterType, required: true
     end
 
+    field :get_user, Types::UserType, null: true do
+      description 'Get the user by ID'
+      argument :id, ID, required: true
+    end
+
     def recipes
       Recipe.all
     end
@@ -35,7 +41,6 @@ module Types
 
     def filter_recipes(filter:)
       recipes = Recipe.all
-
       recipes = recipes.where('recipes.name ILIKE ?', "%#{filter.name}%") if filter.name.present?
 
       if filter.ingredients.present?
@@ -47,10 +52,38 @@ module Types
 
       recipes
     end
+
+    def get_user(id:)
+      User.find_by(id: id)
+    end
   end
 
   class MutationType < GraphQL::Schema::Object
-    # TODO: Add mutations
+    field :toggle_recipe, Types::RecipeType, null: true do
+      argument :id, ID, required: true
+    end
+
+    def toggle_recipe(id:)
+      recipe = Recipe.find_by(id: id)
+      return if recipe.nil?
+
+      payload = Auth.decode(context[:token])
+      user_id = payload['user_id']
+
+      user = User.find_by(id: user_id)
+
+      if user.saved_recipes.include?(recipe.id)
+        user.saved_recipes.delete(recipe.id)
+        user.save
+
+        return recipe
+      end
+
+      user.saved_recipes << recipe.id
+      user.save
+
+      recipe
+    end
   end
 
   class Schema < GraphQL::Schema
