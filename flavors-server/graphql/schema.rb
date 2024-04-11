@@ -60,15 +60,17 @@ module Types
 
   class MutationType < GraphQL::Schema::Object
     field :toggle_recipe, Types::RecipeType, null: true do
-      argument :user, Integer, required: true
       argument :id, ID, required: true
     end
 
-    def toggle_recipe(user:, id:)
+    def toggle_recipe(id:)
       recipe = Recipe.find_by(id: id)
       return if recipe.nil?
 
-      user = User.find_by(id: user)
+      payload = Auth.decode(context[:token])
+      user_id = payload['user_id']
+
+      user = User.find_by(id: user_id)
 
       if user.saved_recipes.include?(recipe.id)
         user.saved_recipes.delete(recipe.id)

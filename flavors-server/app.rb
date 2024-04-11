@@ -15,15 +15,17 @@ require_relative 'models/user'
 require_relative 'graphql/schema'
 require_relative 'lib/auth'
 
-class FlavorsApp < Sinatra::Base
+class FlavorsApp < Sinatra::Application
   set :database_file, './config/database.yml'
 
   post '/graphql' do
     request_data = JSON.parse(request.body.read)
+    token = request.env['HTTP_AUTHORIZATION'][7..]
 
     query = request_data['query']
     variables = request_data['variables'] || {}
     context = request_data['context'] || {}
+    context[:token] = token
 
     result = Types::Schema.execute(query, variables: variables, context: context)
     json result
