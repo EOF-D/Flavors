@@ -40,6 +40,7 @@
                   zlib
                   gcc
                   gnumake
+                  qt5.full
                 ];
 
                 pre-commit.hooks = {
@@ -94,6 +95,33 @@
           };
 
           flavors-nlp = devenv.lib.mkShell {
+            inherit inputs pkgs;
+
+            modules = [
+              {
+                packages = with pkgs; [
+                  zlib
+                  poetry
+                  python3
+                  libcxx
+                ];
+
+                enterShell = ''
+                  export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+                    pkgs.stdenv.cc.cc
+                  ]}
+                '';
+
+                pre-commit.hooks = {
+                  black.enable = true;
+                  isort.enable = true;
+                  pyright.enable = false; # TODO: Turn on after setting path.
+                };
+              }
+            ];
+          };
+
+          flavors-client-py = devenv.lib.mkShell {
             inherit inputs pkgs;
 
             modules = [

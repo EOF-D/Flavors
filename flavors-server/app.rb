@@ -57,7 +57,7 @@ class FlavorsApp < Sinatra::Application
 
     user = User.find_by(username: username)
     if user&.authenticate(password)
-      token = Auth.encode({ user_id: user.id })
+      token = Auth.encode({ username: username, user_id: user.id })
       { token: token }.to_json
     else
       status 401
